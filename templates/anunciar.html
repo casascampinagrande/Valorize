@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Anunciar - Valorize</title>
+
+    {% load static %}
+
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body
+    class="bg-gradient-to-b from-white to-green-400 min-h-screen flex flex-col"
+  >
+    <header class="bg-white shadow">
+      <div
+        class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center"
+      >
+        <a href="{% url 'home' %}" class="text-2xl font-bold text-indigo-600">
+          Valorize
+        </a>
+
+        <nav class="hidden md:flex gap-6 text-gray-700 font-medium">
+          <a href="{% url 'home' %}" class="hover:text-indigo-600">Início</a>
+          <a href="{% url 'suporte' %}" class="hover:text-indigo-600"
+            >Suporte</a
+          >
+        </nav>
+
+        <div class="flex gap-3">
+          <a
+            href="{% url 'login' %}"
+            class="px-4 py-2 border border-indigo-600 text-indigo-600 rounded-lg hover:bg-indigo-50 transition"
+          >
+            Entrar
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center py-12 px-4">
+      <div class="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-8">
+        <h2
+          id="pageTitle"
+          class="text-2xl font-bold text-gray-800 mb-6 text-center"
+        >
+          Publicar um anúncio
+        </h2>
+
+        <form
+          id="announceForm"
+          data-ad-id="{{ anuncio_id|default:'' }}"
+          enctype="multipart/form-data"
+          class="space-y-6"
+        >
+          <div>
+            <label class="block text-sm font-semibold mb-2"
+              >Fotos do imóvel</label
+            >
+
+            <input
+              type="file"
+              name="imagens"
+              id="imageInput"
+              multiple
+              accept="image/*"
+              class="border p-2 rounded w-full"
+            />
+
+            <div
+              id="previewContainer"
+              class="grid grid-cols-3 gap-3 mt-4"
+            ></div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700"
+              >Categoria</label
+            >
+            <select
+              name="categoria"
+              required
+              class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            >
+              <option value="Casa">Casa</option>
+              <option value="Apartamento">Apartamento</option>
+              <option value="Ponto Comercial">Ponto Comercial</option>
+              <option value="Sitio">Sítio</option>
+              <option value="Fazenda">Fazenda</option>
+              <option value="Condominio Fechado">Condomínio Fechado</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700"
+                >Preço</label
+              >
+              <input
+                name="preco"
+                type="text"
+                required
+                placeholder="R$ 1.000"
+                class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700"
+                >Área (m²)</label
+              >
+              <input
+                name="area_m2"
+                type="number"
+                step="0.01"
+                placeholder="Ex: 80.50"
+                class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700"
+                >Cidade</label
+              >
+              <input
+                name="cidade"
+                type="text"
+                required
+                placeholder="Cidade - UF"
+                class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700"
+                >Bairro</label
+              >
+              <input
+                name="bairro"
+                type="text"
+                required
+                placeholder="Ex: Centro"
+                class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700"
+                >Quartos</label
+              >
+              <input
+                name="quartos"
+                type="number"
+                placeholder="Ex: 3"
+                class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700"
+                >Banheiros</label
+              >
+              <input
+                name="banheiros"
+                type="number"
+                placeholder="Ex: 2"
+                class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700"
+                >Vagas de garagem</label
+              >
+              <input
+                name="vagas_garagem"
+                type="number"
+                placeholder="Ex: 1"
+                class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+            <div class="flex items-center gap-6 pt-6">
+              <label
+                class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  name="tem_varanda"
+                  class="w-4 h-4 text-indigo-600 rounded"
+                />
+                Varanda
+              </label>
+
+              <label
+                class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  name="tem_terraco"
+                  class="w-4 h-4 text-indigo-600 rounded"
+                />
+                Terraço
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700"
+              >Descrição</label
+            >
+            <textarea
+              name="descricao"
+              rows="5"
+              placeholder="Descreva o imóvel em detalhes"
+              class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            ></textarea>
+          </div>
+
+          <div class="flex justify-between items-center pt-4">
+            <a
+              href="/perfil/"
+              id="cancel-link"
+              class="px-4 py-2 border border-gray-400 text-gray-600 rounded-lg hover:bg-gray-100 transition"
+            >
+              Cancelar
+            </a>
+
+            <button
+              type="submit"
+              id="submitBtn"
+              class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+            >
+              Publicar anúncio
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <script src="{% static 'js/session.js' %}"></script>
+    <script src="{% static 'js/announce.js' %}"></script>
+    <script src="{% static 'js/edit_announce.js' %}"></script>
+  </body>
+</html>

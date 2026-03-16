@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cadastro - Valorize</title>
+    {% load static %}
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-b from-white to-green-400 min-h-screen flex flex-col">
+
+<header class="bg-white/70 backdrop-blur border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <a href="{% url 'home' %}" class="text-xl font-bold text-gray-900">Valorize</a>
+        <nav class="flex gap-6 font-semibold">
+            <a href="{% url 'home' %}" class="text-gray-800 hover:text-green-700 transition">Início</a>
+            <a href="{% url 'suporte' %}" class="text-gray-800 hover:text-green-700 transition">Suporte</a>
+        </nav>
+        <div class="flex gap-3">
+            <a href="{% url 'login' %}" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-800 font-semibold hover:bg-gray-100 transition">Entrar</a>
+            <a href="{% url 'anunciar' %}" class="px-4 py-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold hover:brightness-95 transition">Anunciar grátis</a>
+        </div>
+    </div>
+</header>
+
+<main class="flex-1 flex items-center justify-center px-4 py-12">
+    <div class="w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-8">
+        <h2 class="text-2xl font-semibold text-gray-800 text-center mb-8">Crie a sua conta. É grátis!</h2>
+
+        <form id="register-form" method="post" class="space-y-5">
+            {% csrf_token %}
+            <fieldset class="space-y-3">
+                <legend class="text-sm font-semibold text-gray-700">Escolha o tipo da sua conta</legend>
+                <div class="flex gap-6">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="tipo_conta" value="pf" checked class="accent-green-600">
+                        <span class="text-gray-700">Pessoa Física</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="tipo_conta" value="pj" class="accent-green-600">
+                        <span class="text-gray-700">Pessoa Jurídica</span>
+                    </label>
+                </div>
+            </fieldset>
+
+            <input id="nome" type="text" name="nome" placeholder="Nome completo" required class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 focus:ring-4 focus:ring-green-200 focus:border-green-600 outline-none transition">
+            
+            <div id="cpfRow">
+                <input name="cpf" type="text" placeholder="CPF" class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 focus:ring-4 focus:ring-green-200 outline-none">
+            </div>
+
+            <div id="cnpjRow" class="hidden">
+                <input name="cnpj" type="text" placeholder="CNPJ" class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 focus:ring-4 focus:ring-green-200 outline-none">
+            </div>
+
+            <div id="dateRow">
+                <input type="date" name="data_nascimento" class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 focus:ring-4 focus:ring-green-200 outline-none">
+            </div>
+
+            <input id="email" type="email" name="email" placeholder="E-mail" required class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 focus:ring-4 focus:ring-green-200 outline-none">
+            <input id="senha" type="password" name="senha" placeholder="Senha (mín. 6 caracteres)" required class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 focus:ring-4 focus:ring-green-200 outline-none">
+            <input id="confirmar_senha" type="password" name="confirmar_senha" placeholder="Confirmar senha" required class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 focus:ring-4 focus:ring-green-200 outline-none">
+
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-3 text-sm text-gray-600">
+                <label class="flex items-start gap-2 cursor-pointer">
+                    <input type="checkbox" id="agreeTerms" required class="mt-1 accent-green-600">
+                    <span>Eu concordo com os <a href="{% url 'terms' %}" class="text-green-700 hover:underline">Termos de Uso</a>.</span>
+                </label>
+            </div>
+
+            <button type="submit" class="w-full px-6 py-3 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition">Cadastrar</button>
+            <div id="mensagem" class="text-center text-sm mt-4"></div>
+        </form>
+    </div>
+</main>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+document.getElementById('register-form').addEventListener('submit', async function(e) {
+    e.preventDefault(); // Impede a página de recarregar
+    
+    const msg = document.getElementById('mensagem');
+    const formData = new FormData(this);
+    
+    // Transforma o FormData em um objeto simples (payload)
+    const payload = Object.fromEntries(formData.entries());
+
+    // 1. UNIFICAÇÃO DOS CAMPOS (Ajuste para o erro {"cpf_cnpj":["This field is required."]})
+    // Pega o valor de 'cpf' ou 'cnpj' e joga na chave que o Django espera
+    payload.cpf_cnpj = (payload.cpf || payload.cnpj || "").replace(/\D/g, ""); 
+    
+    // 2. VALIDAÇÃO DE SENHA
+    if (payload.senha !== payload.confirmar_senha) {
+        msg.className = "text-center text-sm mt-4 text-red-600";
+        msg.textContent = "As senhas não coincidem!";
+        return;
+    }
+
+    try {
+        msg.className = "text-center text-sm mt-4 text-blue-600";
+        msg.textContent = "Processando cadastro...";
+
+        const response = await fetch('/api/registrar/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // O Token CSRF é enviado no header para segurança do Django
+                'X-CSRFToken': payload.csrfmiddlewaretoken 
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            msg.className = "text-center text-sm mt-4 text-green-600 font-bold";
+            msg.textContent = "Cadastro realizado! Verifique seu e-mail para ativar a conta.";
+            
+            // Limpa o formulário
+            this.reset();
+            
+            // Redireciona após 2 segundos
+            setTimeout(() => { window.location.href = '/login/'; }, 2500);
+        } else {
+            msg.className = "text-center text-sm mt-4 text-red-600";
+            
+            // Trata erros específicos vindos do Django
+            if (result.cpf_cnpj) {
+                msg.textContent = "Erro no CPF/CNPJ: " + result.cpf_cnpj[0];
+            } else if (result.email) {
+                msg.textContent = "Erro no E-mail: " + result.email[0];
+            } else {
+                msg.textContent = result.erro || "Erro ao cadastrar. Verifique os dados.";
+            }
+        }
+    } catch (error) {
+        console.error("Erro na requisição:", error);
+        msg.className = "text-center text-sm mt-4 text-red-600";
+        msg.textContent = "Erro de conexão com o servidor.";
+    }
+});
+</script>
+</body>
+</html>

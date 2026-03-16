@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Criar Nova Senha - Valorize</title>
+    {% load static %}
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <main class="w-full max-w-md p-6">
+        <div class="bg-white rounded-xl shadow-lg p-8">
+            <h1 class="text-2xl font-bold text-center mb-2">Nova Senha</h1>
+            <p class="text-gray-500 text-center mb-6">Digite sua nova senha abaixo.</p>
+
+            <form id="resetForm" class="space-y-4">
+                <input id="password" type="password" placeholder="Mínimo 6 caracteres" required class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none">
+                <input id="confirmPassword" type="password" placeholder="Repita a senha" required class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none">
+                <div id="reset-message" class="text-center text-sm font-bold mt-2"></div>
+                <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition">Atualizar Senha</button>
+            </form>
+
+            <div id="resetSuccess" class="hidden text-center space-y-4">
+                <p class="text-green-600 font-bold text-lg">✅ Senha alterada com sucesso!</p>
+                <a href="{% url 'login' %}" class="inline-block bg-gray-800 text-white px-6 py-2 rounded-lg hover:bg-black transition">Ir para o Login</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+    (function () {
+        const form = document.getElementById('resetForm');
+        const successDiv = document.getElementById('resetSuccess');
+        const msg = document.getElementById('reset-message');
+
+        const urlParams = new URLSearchParams(window.location.search);
+        let uid = (urlParams.get('uid') || "").replace(/^3D/, "").replace(/\/$/, "");
+        let token = (urlParams.get('token') || "").replace(/^3D/, "").replace(/\/$/, "");
+
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const password = document.getElementById('password').value;
+            const confirm = document.getElementById('confirmPassword').value;
+
+            if (password.length < 6) {
+                msg.style.color = 'red';
+                msg.textContent = 'A senha deve ter pelo menos 6 caracteres.';
+                return;
+            }
+
+            if (password !== confirm) {
+                msg.style.color = 'red';
+                msg.textContent = 'As senhas não coincidem!';
+                return;
+            }
+
+            try {
+                msg.style.color = 'blue';
+                msg.textContent = 'Processando...';
+
+                // Usando o name correto do seu urls.py
+                const response = await fetch('{% url "password_reset_confirm" %}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ uid, token, nova_senha: password })
+                });
+
+                if (response.ok) {
+                    form.classList.add('hidden');
+                    successDiv.classList.remove('hidden');
+                    msg.textContent = '';
+                } else {
+                    const data = await response.json();
+                    msg.style.color = 'red';
+                    msg.textContent = data.erro || 'Link expirado ou inválido.';
+                }
+            } catch (err) {
+                msg.style.color = 'red';
+                msg.textContent = 'Erro ao conectar com o servidor.';
+            }
+        });
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Termos de Uso - Valorize</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gradient-to-b from-white to-green-400 min-h-screen flex flex-col">
+
+<!-- HEADER -->
+<header class="bg-white/70 backdrop-blur border-b border-gray-200">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    
+    <a href="{% url 'home' %}" class="text-xl font-bold text-gray-900">
+      Valorize
+    </a>
+
+    <nav class="hidden md:flex gap-6 font-semibold">
+      <a href="{% url 'home' %}" class="text-gray-800 hover:text-green-700 transition">
+        Início
+      </a>
+     
+      <a href="{% url 'suporte' %}" class="text-gray-800 hover:text-green-700 transition">
+        Suporte
+      </a>
+    </nav>
+
+    <div class="flex gap-3">
+      <a href="{% url 'login' %}"
+         class="px-4 py-2 rounded-lg border border-gray-300 text-gray-800 font-semibold hover:bg-gray-100 transition">
+        Entrar
+      </a>
+
+      <a href="{% url 'anunciar' %}"
+         class="px-4 py-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold hover:brightness-95 transition">
+        Anunciar grátis
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- CONTEÚDO -->
+<main class="flex-1 flex items-center justify-center px-4 py-12">
+
+  <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-8 md:p-12">
+
+    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">
+      Termos de Uso
+    </h2>
+
+    <div class="space-y-6 text-gray-700 leading-relaxed">
+
+      <p class="font-semibold">
+        Versão fictícia — Termos de Uso da Valorize
+      </p>
+
+      <p>
+        Bem-vindo(a) à Valorize. Ao utilizar este site, você concorda com estes
+        Termos de Uso fictícios. Estes termos descrevem as regras de uso do
+        serviço, propriedade intelectual, responsabilidade e condições de acesso.
+      </p>
+
+      <div>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">
+          Uso do Conteúdo
+        </h3>
+        <p>
+          Todo o conteúdo disponibilizado é para uso informativo. É proibida a
+          reprodução não autorizada. Reservamo-nos o direito de alterar,
+          suspender ou encerrar o serviço a qualquer momento.
+        </p>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">
+          Responsabilidade
+        </h3>
+        <p>
+          A Valorize não se responsabiliza por danos diretos ou indiretos
+          decorrentes do uso do sistema, exceto quando previsto em lei.
+        </p>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">
+          Alterações
+        </h3>
+        <p>
+          Estes termos podem ser atualizados periodicamente. Recomendamos a
+          leitura frequente.
+        </p>
+      </div>
+
+      <div class="pt-6 text-center">
+        <a href="{% url 'registro' %}"
+           class="inline-block px-6 py-3 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition">
+          Voltar ao cadastro
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+
+</main>
+
+</body>
+</html>
