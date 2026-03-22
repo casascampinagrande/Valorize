@@ -1,249 +1,275 @@
 <!doctype html>
 <html lang="pt-BR">
-  <head>
+<head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Anunciar - Valorize</title>
 
     {% load static %}
-
     <script src="https://cdn.tailwindcss.com"></script>
-  </head>
+    <script src="{% static 'js/toast.js' %}"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            orange: '#f97316',
+                            dark: '#111827',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
 
-  <body
-    class="bg-gradient-to-b from-white to-green-400 min-h-screen flex flex-col"
-  >
-    <header class="bg-white shadow">
-      <div
-        class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center"
-      >
-        <a href="{% url 'home' %}" class="text-2xl font-bold text-indigo-600">
-          Valorize
-        </a>
+<body class="bg-gray-50 text-gray-800 antialiased font-sans min-h-screen flex flex-col">
 
-        <nav class="hidden md:flex gap-6 text-gray-700 font-medium">
-          <a href="{% url 'home' %}" class="hover:text-indigo-600">Início</a>
-          <a href="{% url 'suporte' %}" class="hover:text-indigo-600"
-            >Suporte</a
-          >
-        </nav>
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="{% url 'home' %}" class="flex items-center gap-2">
+                <img src="{% static 'img/logo.png' %}" alt="Valorize" class="h-8 w-auto">
+                <span class="text-xl font-bold text-brand-dark tracking-tight">Valorize</span>
+            </a>
 
-        <div class="flex gap-3">
-          <a
-            href="{% url 'login' %}"
-            class="px-4 py-2 border border-indigo-600 text-indigo-600 rounded-lg hover:bg-indigo-50 transition"
-          >
-            Entrar
-          </a>
+            <nav class="hidden md:flex gap-6 font-medium text-gray-600">
+                <a href="{% url 'home' %}" class="hover:text-brand-orange transition-colors">Início</a>
+                <a href="{% url 'suporte' %}" class="hover:text-brand-orange transition-colors">Suporte</a>
+            </nav>
+
+            <div class="flex gap-3">
+                <a href="{% url 'login' %}" class="px-5 py-2 text-gray-600 font-semibold hover:text-brand-orange transition-colors">
+                    Entrar
+                </a>
+            </div>
         </div>
-      </div>
     </header>
 
     <main class="flex-grow flex items-center justify-center py-12 px-4">
-      <div class="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-8">
-        <h2
-          id="pageTitle"
-          class="text-2xl font-bold text-gray-800 mb-6 text-center"
-        >
-          Publicar um anúncio
-        </h2>
-
-        <form
-          id="announceForm"
-          data-ad-id="{{ anuncio_id|default:'' }}"
-          enctype="multipart/form-data"
-          class="space-y-6"
-        >
-          <div>
-            <label class="block text-sm font-semibold mb-2"
-              >Fotos do imóvel</label
-            >
-
-            <input
-              type="file"
-              name="imagens"
-              id="imageInput"
-              multiple
-              accept="image/*"
-              class="border p-2 rounded w-full"
-            />
-
-            <div
-              id="previewContainer"
-              class="grid grid-cols-3 gap-3 mt-4"
-            ></div>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700"
-              >Categoria</label
-            >
-            <select
-              name="categoria"
-              required
-              class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-            >
-              <option value="Casa">Casa</option>
-              <option value="Apartamento">Apartamento</option>
-              <option value="Ponto Comercial">Ponto Comercial</option>
-              <option value="Sitio">Sítio</option>
-              <option value="Fazenda">Fazenda</option>
-              <option value="Condominio Fechado">Condomínio Fechado</option>
-            </select>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700"
-                >Preço</label
-              >
-              <input
-                name="preco"
-                type="text"
-                required
-                placeholder="R$ 1.000"
-                class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-              />
+        <div class="w-full max-w-3xl bg-white rounded-3xl shadow-xl border border-gray-100 p-8 md:p-12">
+            
+            <div class="text-center mb-10">
+                <h2 id="pageTitle" class="text-3xl font-extrabold text-gray-900 mb-2">
+                    Publicar um anúncio
+                </h2>
+                <p class="text-gray-500">Preencha os detalhes abaixo para destacar seu imóvel no Valorize.</p>
             </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700"
-                >Área (m²)</label
-              >
-              <input
-                name="area_m2"
-                type="number"
-                step="0.01"
-                placeholder="Ex: 80.50"
-                class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-              />
-            </div>
-          </div>
+            <form id="announceForm" data-ad-id="{{ anuncio_id|default:'' }}" enctype="multipart/form-data" class="space-y-8">
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700"
-                >Cidade</label
-              >
-              <input
-                name="cidade"
-                type="text"
-                required
-                placeholder="Cidade - UF"
-                class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-              />
-            </div>
+                                <div>
+                                    <label for="titulo" class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Título do anúncio</label>
+                                    <input name="titulo" id="titulo" type="text" required placeholder="Ex: Apartamento 2 quartos no Centro" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-brand-orange outline-none transition-all">
+                                </div>
+                
+                <div class="bg-gray-50 p-6 rounded-2xl border-2 border-dashed border-gray-200 hover:border-brand-orange/50 transition-colors">
+                    <label class="block text-sm font-bold text-gray-700 mb-4 uppercase tracking-wider">Fotos do imóvel</label>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700"
-                >Bairro</label
-              >
-              <input
-                name="bairro"
-                type="text"
-                required
-                placeholder="Ex: Centro"
-                class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-              />
-            </div>
-          </div>
+                    <div class="flex items-center justify-center w-full">
+                        <label for="imageInput" class="flex flex-col items-center justify-center w-full h-32 bg-white rounded-xl cursor-pointer hover:bg-gray-50 border border-gray-200 transition-all">
+                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                <svg class="w-8 h-8 mb-3 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                <p class="text-sm text-gray-500 font-medium">Clique para selecionar várias fotos</p>
+                            </div>
+                            <input type="file" name="images" id="imageInput" multiple accept="image/*" class="hidden" />
+                        </label>
+                    </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700"
-                >Quartos</label
-              >
-              <input
-                name="quartos"
-                type="number"
-                placeholder="Ex: 3"
-                class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
+                    <div id="previewContainer" class="grid grid-cols-3 sm:grid-cols-4 gap-4 mt-6">
+                        </div>
+                </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700"
-                >Banheiros</label
-              >
-              <input
-                name="banheiros"
-                type="number"
-                placeholder="Ex: 2"
-                class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Categoria</label>
+                        <select name="categoria" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-brand-orange outline-none transition-all cursor-pointer">
+                            <option value="Casa">Casa</option>
+                            <option value="Apartamento">Apartamento</option>
+                            <option value="Ponto Comercial">Ponto Comercial</option>
+                            <option value="Sitio">Sítio</option>
+                            <option value="Fazenda">Fazenda</option>
+                            <option value="Condominio Fechado">Condomínio Fechado</option>
+                        </select>
+                    </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700"
-                >Vagas de garagem</label
-              >
-              <input
-                name="vagas_garagem"
-                type="number"
-                placeholder="Ex: 1"
-                class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-            <div class="flex items-center gap-6 pt-6">
-              <label
-                class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer"
-              >
-                <input
-                  type="checkbox"
-                  name="tem_varanda"
-                  class="w-4 h-4 text-indigo-600 rounded"
-                />
-                Varanda
-              </label>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Tipo do anúncio</label>
+                        <select name="finalidade" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-brand-orange outline-none transition-all cursor-pointer">
+                            <option value="venda">Venda</option>
+                            <option value="aluguel">Aluguel</option>
+                        </select>
+                    </div>
 
-              <label
-                class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer"
-              >
-                <input
-                  type="checkbox"
-                  name="tem_terraco"
-                  class="w-4 h-4 text-indigo-600 rounded"
-                />
-                Terraço
-              </label>
-            </div>
-          </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Preço</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">R$</span>
+                            <input name="preco" type="text" required placeholder="0,00" class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-brand-orange outline-none transition-all">
+                        </div>
+                    </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700"
-              >Descrição</label
-            >
-            <textarea
-              name="descricao"
-              rows="5"
-              placeholder="Descreva o imóvel em detalhes"
-              class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-            ></textarea>
-          </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Área (m²)</label>
+                        <input name="area_m2" type="number" step="0.01" placeholder="Ex: 80.50" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-brand-orange outline-none transition-all">
+                    </div>
+                    <div>
+                                            <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Estado (UF)</label>
+                                            <select name="uf" id="select-uf" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-brand-orange outline-none transition-all">
+                                                <option value="">Selecione o estado</option>
+                                                <option value="AC">Acre</option>
+                                                <option value="AL">Alagoas</option>
+                                                <option value="AP">Amapá</option>
+                                                <option value="AM">Amazonas</option>
+                                                <option value="BA">Bahia</option>
+                                                <option value="CE">Ceará</option>
+                                                <option value="DF">Distrito Federal</option>
+                                                <option value="ES">Espírito Santo</option>
+                                                <option value="GO">Goiás</option>
+                                                <option value="MA">Maranhão</option>
+                                                <option value="MT">Mato Grosso</option>
+                                                <option value="MS">Mato Grosso do Sul</option>
+                                                <option value="MG">Minas Gerais</option>
+                                                <option value="PA">Pará</option>
+                                                <option value="PB">Paraíba</option>
+                                                <option value="PR">Paraná</option>
+                                                <option value="PE">Pernambuco</option>
+                                                <option value="PI">Piauí</option>
+                                                <option value="RJ">Rio de Janeiro</option>
+                                                <option value="RN">Rio Grande do Norte</option>
+                                                <option value="RS">Rio Grande do Sul</option>
+                                                <option value="RO">Rondônia</option>
+                                                <option value="RR">Roraima</option>
+                                                <option value="SC">Santa Catarina</option>
+                                                <option value="SP">São Paulo</option>
+                                                <option value="SE">Sergipe</option>
+                                                <option value="TO">Tocantins</option>
+                                            </select>
+                                        </div>
+                </div>
 
-          <div class="flex justify-between items-center pt-4">
-            <a
-              href="/perfil/"
-              id="cancel-link"
-              class="px-4 py-2 border border-gray-400 text-gray-600 rounded-lg hover:bg-gray-100 transition"
-            >
-              Cancelar
-            </a>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Cidade</label>
+                        <div class="relative">
+                            <input name="cidade" id="input-cidade" type="text" autocomplete="off" required placeholder="Cidade - UF" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-brand-orange outline-none transition-all">
+                            <ul id="sugestoes-cidade" class="absolute left-0 right-0 bg-white border border-gray-200 rounded-b-xl shadow-lg z-10 hidden max-h-48 overflow-y-auto"></ul>
+                        </div>
+                    </div>
 
-            <button
-              type="submit"
-              id="submitBtn"
-              class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
-            >
-              Publicar anúncio
-            </button>
-          </div>
-        </form>
-      </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Bairro</label>
+                        <input name="bairro" type="text" required placeholder="Ex: Centro" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-brand-orange outline-none transition-all">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Quartos</label>
+                        <input name="quartos" type="number" placeholder="0" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-brand-orange outline-none transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Banheiros</label>
+                        <input name="banheiros" type="number" placeholder="0" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-brand-orange outline-none transition-all">
+                    </div>
+
+                    <div class="col-span-2 md:col-span-1">
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Vagas na garagem</label>
+                        <input name="vagas_garagem" type="number" placeholder="0" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-brand-orange outline-none transition-all">
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-8 py-2">
+                    <label class="group flex items-center gap-3 text-gray-700 cursor-pointer">
+                        <input type="checkbox" name="tem_varanda" class="w-5 h-5 border-gray-300 rounded text-brand-orange focus:ring-brand-orange transition-all cursor-pointer">
+                        <span class="font-medium group-hover:text-brand-orange transition-colors">Varanda</span>
+                    </label>
+
+                    <label class="group flex items-center gap-3 text-gray-700 cursor-pointer">
+                        <input type="checkbox" name="tem_terraco" class="w-5 h-5 border-gray-300 rounded text-brand-orange focus:ring-brand-orange transition-all cursor-pointer">
+                        <span class="font-medium group-hover:text-brand-orange transition-colors">Terraço</span>
+                    </label>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Descrição Detalhada</label>
+                    <textarea name="descricao" rows="5" placeholder="Fale sobre os diferenciais do imóvel, acabamento, vista, etc..." class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-brand-orange outline-none transition-all resize-none"></textarea>
+                </div>
+
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-gray-100">
+                    <a href="#" id="cancel-link" class="w-full sm:w-auto px-8 py-3.5 border-2 border-gray-200 text-gray-500 font-bold rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all text-center">
+                        Cancelar
+                    </a>
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const cancelBtn = document.getElementById('cancel-link');
+                        if (cancelBtn) {
+                            cancelBtn.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                const userId = localStorage.getItem('userId');
+                                if (userId && userId !== 'null' && userId !== 'undefined') {
+                                    window.location.href = `/perfil/${userId}/`;
+                                } else {
+                                    window.location.href = '/login/';
+                                }
+                            });
+                        }
+                    });
+                    </script>
+
+                    <button type="submit" id="submitBtn" class="w-full sm:w-auto px-10 py-4 bg-brand-dark text-white font-bold rounded-xl hover:bg-gray-800 shadow-lg shadow-gray-900/20 transition-all hover:-translate-y-0.5">
+                        Publicar anúncio
+                    </button>
+                   
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Só mostra o botão de excluir se estiver editando
+                        const adId = document.getElementById('announceForm').dataset.adId;
+                        const deleteBtn = document.getElementById('deleteBtn');
+                        if (adId && adId !== '' && adId !== 'null' && adId !== 'undefined') {
+                            deleteBtn.style.display = '';
+                            deleteBtn.addEventListener('click', async function() {
+                                showConfirm('Tem certeza que deseja excluir este anúncio? Essa ação não pode ser desfeita.', async function() {
+                                    const token = localStorage.getItem('userToken');
+                                    try {
+                                        const resp = await fetch(`/api/anuncios/${adId}/`, {
+                                            method: 'DELETE',
+                                            headers: { 'Authorization': `Token ${token}` }
+                                        });
+                                        if (resp.status === 204 || resp.status === 200) {
+                                            showToast('Anúncio excluído com sucesso!', 'success');
+                                            const userId = localStorage.getItem('userId');
+                                            if (userId && userId !== 'null' && userId !== 'undefined') {
+                                                window.location.href = `/perfil/${userId}/`;
+                                            } else {
+                                                window.location.href = '/login/';
+                                            }
+                                        } else {
+                                            showToast('Erro ao excluir anúncio.', 'error');
+                                        }
+                                    } catch (e) {
+                                        showToast('Erro de conexão ao excluir anúncio.', 'error');
+                                    }
+                                });
+                            });
+                        }
+                    });
+                    </script>
+                </div>
+            </form>
+        </div>
     </main>
+
+    <footer class="py-8 text-center text-gray-400 text-sm">
+        &copy; 2026 Valorize Imóveis. Todos os direitos reservados.
+    </footer>
 
     <script src="{% static 'js/session.js' %}"></script>
     <script src="{% static 'js/announce.js' %}"></script>
     <script src="{% static 'js/edit_announce.js' %}"></script>
-  </body>
+</body>
 </html>

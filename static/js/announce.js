@@ -1,3 +1,74 @@
+// Autocomplete de cidade/estado
+document.addEventListener('DOMContentLoaded', function () {
+    const inputCidade = document.getElementById('input-cidade');
+    const sugestoesCidade = document.getElementById('sugestoes-cidade');
+    const selectUf = document.getElementById('select-uf');
+    if (!inputCidade || !sugestoesCidade || !selectUf) return;
+
+    let timeoutId;
+
+    function buscarSugestoesCidade(termo = "") {
+        const uf = selectUf.value;
+        if (!uf) {
+            sugestoesCidade.classList.add('hidden');
+            sugestoesCidade.innerHTML = '';
+            return;
+        }
+        fetch(`/api/sugestoes-cidade/?q=${encodeURIComponent(termo)}&uf=${encodeURIComponent(uf)}`)
+            .then(resp => resp.ok ? resp.json() : [])
+            .then(sugestoes => {
+                sugestoesCidade.innerHTML = '';
+                if (!sugestoes || sugestoes.length === 0) {
+                    sugestoesCidade.classList.add('hidden');
+                    return;
+                }
+                sugestoes.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    li.className = 'px-4 py-2 cursor-pointer hover:bg-orange-50';
+                    li.addEventListener('mousedown', function () {
+                        inputCidade.value = item;
+                        sugestoesCidade.classList.add('hidden');
+                        sugestoesCidade.innerHTML = '';
+                    });
+                    sugestoesCidade.appendChild(li);
+                });
+                sugestoesCidade.classList.remove('hidden');
+            })
+            .catch(() => {
+                sugestoesCidade.classList.add('hidden');
+            });
+    }
+
+    inputCidade.addEventListener('input', function () {
+        clearTimeout(timeoutId);
+        const termo = inputCidade.value.trim();
+        if (!selectUf.value) {
+            sugestoesCidade.classList.add('hidden');
+            sugestoesCidade.innerHTML = '';
+            return;
+        }
+        if (termo.length < 2) {
+            sugestoesCidade.classList.add('hidden');
+            sugestoesCidade.innerHTML = '';
+            return;
+        }
+        timeoutId = setTimeout(() => buscarSugestoesCidade(termo), 200);
+    });
+
+    // Ao trocar UF, buscar cidades daquele estado
+    selectUf.addEventListener('change', function () {
+        inputCidade.value = '';
+        buscarSugestoesCidade("");
+    });
+
+    // Esconde sugestões ao perder o foco
+    inputCidade.addEventListener('blur', function () {
+        setTimeout(() => {
+            sugestoesCidade.classList.add('hidden');
+        }, 150);
+    });
+});
 document.addEventListener('DOMContentLoaded', async () => {
 
     const form = document.getElementById('announceForm');
@@ -6,7 +77,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem("userToken"); // ← FALTAVA ISSO
 
     if (!token) {
-        alert("Você precisa estar logado.");
+        showToast("Você precisa estar logado.", 'error');
         window.location.href = "/login/";
         return;
     }
@@ -27,41 +98,43 @@ document.addEventListener('DOMContentLoaded', async () => {
         submitBtn.textContent = "Salvar alterações";
 
         try {
-
             const res = await fetch(`/api/anuncios/${adId}/`, {
                 headers: {
                     'Authorization': `Token ${token}`
                 }
             });
-
             const ad = await res.json();
-
-            const titulo = form.querySelector('[name="titulo"]');
-            if (titulo) titulo.value = ad.title || "";
-
-            const preco = form.querySelector('[name="preco"]');
-            if (preco) preco.value = ad.price || "";
-
-            const descricao = form.querySelector('[name="descricao"]');
-            if (descricao) descricao.value = ad.description || "";
-
-            const cidade = form.querySelector('[name="cidade"]');
-            if (cidade) cidade.value = ad.city || "";
-
-            const bairro = form.querySelector('[name="bairro"]');
-            if (bairro) bairro.value = ad.bairro || "";
-
-            const area = form.querySelector('[name="area_m2"]');
-            if (area) area.value = ad.area_m2 || "";
-
-            const quartos = form.querySelector('[name="quartos"]');
-            if (quartos) quartos.value = ad.rooms || "";
-
+            // Preencher todos os campos do model
+            const map = {
+                'titulo': ad.titulo,
+                'descricao': ad.descricao,
+                'preco': ad.preco,
+                'cidade': ad.cidade,
+                'uf': ad.uf,
+                'bairro': ad.bairro,
+                'quartos': ad.quartos,
+                'banheiros': ad.banheiros,
+                'vagas_garagem': ad.vagas_garagem,
+                'area_m2': ad.area_m2,
+                'tem_varanda': ad.tem_varanda,
+                'tem_terraco': ad.tem_terraco,
+                'finalidade': ad.finalidade,
+                'categoria': ad.categoria
+            };
+            Object.entries(map).forEach(([name, value]) => {
+                const input = form.querySelector(`[name="${name}"]`);
+                if (!input) return;
+                if (input.type === 'checkbox') {
+                    input.checked = !!value;
+                } else if (input.tagName === 'SELECT') {
+                    input.value = value || '';
+                } else {
+                    input.value = value ?? '';
+                }
+            });
         } catch (err) {
-
             console.error("Erro ao carregar anúncio", err);
-            alert("Erro ao carregar anúncio");
-
+            showToast("Erro ao carregar anúncio", 'error');
         }
 
     }
@@ -104,21 +177,45 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (response.ok) {
 
-                alert(isEditing ? "Anúncio atualizado!" : "Anúncio publicado!");
-                window.location.href = "/perfil/";
+                showToast(isEditing ? "Anúncio atualizado!" : "Anúncio publicado!", 'success');
+                const userId = localStorage.getItem('userId');
+                if (userId && userId !== 'null' && userId !== 'undefined') {
+                    window.location.href = `/perfil/${userId}/`;
+                } else {
+                    window.location.href = '/login/';
+                }
 
             } else {
 
                 console.error(data);
                 console.log(data);
-                alert(JSON.stringify(data));
+            // Exibe mensagens de erro de validação de forma amigável
+            let msg = 'Erro ao publicar anúncio.';
+            if (typeof data === 'object' && data !== null) {
+                if (data.descricao && Array.isArray(data.descricao)) {
+                    msg = 'Descrição: ' + data.descricao.join(', ');
+                } else {
+                    msg = Object.entries(data).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`).join(' | ');
+                }
+            }
+            showToast(msg, 'error');
+            // Exibe mensagens de erro de validação de forma amigável
+            let msg = 'Erro ao publicar anúncio.';
+            if (typeof data === 'object' && data !== null) {
+                if (data.descricao && Array.isArray(data.descricao)) {
+                    msg = 'Descrição: ' + data.descricao.join(', ');
+                } else {
+                    msg = Object.entries(data).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`).join(' | ');
+                }
+            }
+            showToast(msg, 'error');
 
             }
 
         } catch (err) {
 
             console.error(err);
-            alert("Erro de conexão");
+            showToast("Erro de conexão", 'error');
 
         }
 

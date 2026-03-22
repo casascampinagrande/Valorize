@@ -1,3 +1,36 @@
+from django.http import HttpResponse
+
+def confirmar_plano(request, plan_id):
+    # Aqui futuramente integrará com a API da pagar.me
+    # Por enquanto, apenas redireciona para o perfil do usuário logado
+    from django.shortcuts import redirect
+    return redirect('perfil')
+def planos(request):
+    return render(request, "planos.html")
+from django.db.models import Value as V
+from django.db.models.functions import Concat
+from rest_framework.decorators import api_view
+
+from corretores import models
+from django.db.models import Q
+@api_view(["GET"])
+def sugestoes_cidade(request):
+    termo = request.GET.get("q", "").strip()
+    uf = request.GET.get("uf", "").strip().upper()
+    if not uf:
+        return Response([])
+    qs = Anuncio.objects.filter(uf=uf)
+    if termo and len(termo) >= 2:
+        qs = qs.filter(Q(cidade__icontains=termo))
+    # Retorna as cidades mais comuns primeiro
+    cidades = (
+        qs.values_list('cidade', flat=True)
+        .annotate()
+        .distinct()
+    )
+    # Opcional: limitar a 10 cidades
+    cidades = list(cidades)[:10]
+    return Response(cidades)
 from rest_framework import status, response, views, generics
 from rest_framework.generics import RetrieveUpdateAPIView
 from .serializers import RegistroCorretorSerializer, AnuncioSerializer, UserSerializer
@@ -22,7 +55,11 @@ from rest_framework.parsers import MultiPartParser, FormParser
 
 
 def home(request):
-    return render(request, "index.html")
+    # Anúncios mais acessados (top 8)
+    anuncios_populares = Anuncio.objects.filter(ativo=True).order_by('-acessos', '-data_criacao')[:8]
+    # Novidades (mais recentes)
+    anuncios_novos = Anuncio.objects.filter(ativo=True).order_by('-data_criacao')[:12]
+    return render(request, "index.html", {"anuncios": anuncios_novos, "anuncios_populares": anuncios_populares})
 
 def login(request):
     return render(request, "login.html")
@@ -227,7 +264,10 @@ class PerfilPublicView(views.APIView):
             "title": a.titulo,
             "price": f"R$ {a.preco}",
             "city": a.cidade,
-            "image": a.imagem_capa.url if a.imagem_capa else "https://via.placeholder.com/300"
+            "bairro": a.bairro,
+            "finalidade": a.finalidade,
+            "created": a.data_criacao.isoformat() if a.data_criacao else None,
+            "image": request.build_absolute_uri(a.imagem_capa.url) if a.imagem_capa else "https://via.placeholder.com/300"
         } for a in anuncios]
 
         corretor = getattr(user, 'corretor', None)
@@ -237,11 +277,17 @@ class PerfilPublicView(views.APIView):
         else:
             avatar = "https://via.placeholder.com/150"
 
+        # Adiciona creci e telefone se existirem
+        creci = corretor.creci if corretor and corretor.creci else ''
+        telefone = corretor.telefone if corretor and corretor.telefone else ''
+
         return Response({
             "id": user.id,
             "username": user.username,
             "nome": corretor.nome if corretor else user.username,
             "foto": avatar,
+            "creci": creci,
+            "telefone": telefone,
             "memberSince": user.date_joined.strftime("%m/%Y"),
             "location": "Paraíba, Brasil",
             "anuncios": anuncios_data
@@ -272,6 +318,7 @@ class AnuncioListView(views.APIView):
         return Response({'results': anuncios})
 
 
+
 class AnuncioDetailView(views.APIView):
     permission_classes = [AllowAny]
 
@@ -284,40 +331,64 @@ class AnuncioDetailView(views.APIView):
         if not a.ativo:
             if not request.user.is_authenticated or a.corretor != request.user:
                 return Response({"detail": "Este anúncio ainda não está ativo."}, status=status.HTTP_403_FORBIDDEN)
-        
-        images = []
 
-        # imagem de capa
+        # Incrementa o contador de acessos
+        a.acessos = (a.acessos or 0) + 1
+        a.save(update_fields=["acessos"])
+
+        images = []
         if a.imagem_capa:
             images.append(request.build_absolute_uri(a.imagem_capa.url))
-
-        # galeria
         for img in a.imagens.all():
             images.append(request.build_absolute_uri(img.imagem.url))
 
+        corretor = a.corretor
+        telefone = ""
+        if hasattr(corretor, "corretor") and corretor.corretor.telefone:
+            telefone = corretor.corretor.telefone
         data = {
             "id": a.id,
-            "title": a.titulo,
-            "description": a.descricao,
-            "price": a.preco,
-            "city": a.cidade,
+            "titulo": a.titulo,
+            "descricao": a.descricao,
+            "preco": a.preco,
+            "cidade": a.cidade,
+            "uf": a.uf,
             "bairro": a.bairro,
-            "rooms": a.quartos,
-            "bathrooms": a.banheiros,
-            "garage": a.vagas_garagem,
+            "quartos": a.quartos,
+            "banheiros": a.banheiros,
+            "vagas_garagem": a.vagas_garagem,
             "area_m2": a.area_m2,
+            "tem_varanda": a.tem_varanda,
+            "tem_terraco": a.tem_terraco,
             "finalidade": a.finalidade,
-            "image": request.build_absolute_uri(a.imagem_capa.url) if a.imagem_capa else '',
+            "categoria": a.categoria,
+            "data_criacao": a.data_criacao,
+            "imagem_capa": request.build_absolute_uri(a.imagem_capa.url) if a.imagem_capa else '',
             "images": images,
             "owner_id": a.corretor.id if a.corretor else None,
+            "telefone": telefone,
+            "acessos": a.acessos,
         }
 
         if request.user.is_authenticated:
-         data['mine'] = (a.corretor == request.user)
+            data['mine'] = (a.corretor == request.user)
         else:
-         data['mine'] = False
+            data['mine'] = False
 
         return Response(data)
+
+    def delete(self, request, pk, *args, **kwargs):
+        try:
+            anuncio = Anuncio.objects.get(pk=pk)
+        except Anuncio.DoesNotExist:
+            return Response({"erro": "Anúncio não encontrado."}, status=404)
+
+        # Só o dono pode apagar
+        if not request.user.is_authenticated or anuncio.corretor != request.user:
+            return Response({"erro": "Permissão negada."}, status=403)
+
+        anuncio.delete()
+        return Response({"mensagem": "Anúncio apagado com sucesso."}, status=204)
 
 
 def anunciar(request, pk=None):
@@ -345,23 +416,24 @@ class PublicarAnuncioView(APIView):
         )
 
         if serializer.is_valid():
-
             anuncio = serializer.save(corretor=request.user)
-
             imagens = request.FILES.getlist("imagens")
-
-            for img in imagens:
-                AnuncioImagem.objects.create(
-                    anuncio=anuncio,
-                    imagem=img
-                )
-
+            if imagens:
+                # Define a primeira imagem como capa
+                anuncio.imagem_capa = imagens[0]
+                anuncio.save()
+                # Salva todas as imagens na galeria
+                for img in imagens:
+                    AnuncioImagem.objects.create(
+                        anuncio=anuncio,
+                        imagem=img
+                    )
             return Response(
                 {"mensagem": "Anúncio publicado!"},
                 status=status.HTTP_201_CREATED
             )
-            
-    
+        # Se não for válido, retorna os erros
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class EditarAnuncioView(views.APIView):
     permission_classes = [IsAuthenticated]

@@ -60,6 +60,7 @@ class Anuncio(models.Model):
     preco = models.DecimalField(max_digits=12, decimal_places=2)
 
     cidade = models.CharField(max_length=100)
+    uf = models.CharField(max_length=2, verbose_name='UF')
     bairro = models.CharField(max_length=100)
 
     quartos = models.IntegerField(default=0, null=True, blank=True)
@@ -79,6 +80,8 @@ class Anuncio(models.Model):
     ativo = models.BooleanField(default=True)
 
     imagem_capa = models.ImageField(upload_to='anuncios/', null=True, blank=True)
+
+    acessos = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.titulo} - {self.cidade}"

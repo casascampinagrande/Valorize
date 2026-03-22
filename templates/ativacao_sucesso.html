@@ -3,29 +3,90 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Conta Ativada!</title>
-    <link rel="stylesheet" href="css/register-full.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conta Ativada - Valorize</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            orange: '#f97316',
+                            dark: '#111827',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        .form-box h2 { color: #059669; } /* Um verde bonito */
+        @keyframes scale-up {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop { animation: scale-up 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     </style>
 </head>
-<body class="hero-page">
-    <div class="form-wrapper">
-        <div class="form-box" style="text-align: center;">
-            <h2>Conta Ativada com Sucesso! ✅</h2>
-            <p>Seu cadastro na <strong>Valorize</strong> está pronto.</p>
-            <p>Você será redirecionado para o seu perfil em instantes...</p>
-            <br>
-            <a href="{% url 'perfil' %}" class="btn">Ir para o Perfil agora</a>
+<body class="bg-gray-50 text-gray-800 antialiased font-sans min-h-screen flex flex-col items-center justify-center px-4">
+
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-gray-100 p-10 text-center animate-pop">
+        
+        <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center text-green-600 mx-auto mb-8 shadow-inner">
+            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+            </svg>
+        </div>
+
+        <h2 class="text-3xl font-extrabold text-gray-900 mb-4">
+            Conta Ativada!
+        </h2>
+        
+        <p class="text-gray-500 mb-8 leading-relaxed">
+            Seu cadastro na <span class="font-bold text-brand-dark">Valorize</span> foi concluído com sucesso. Agora você já pode gerenciar seus anúncios.
+        </p>
+
+        <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden mb-8">
+            <div id="progress-bar" class="bg-brand-orange h-full w-0 transition-all duration-[3000ms] ease-linear"></div>
+        </div>
+
+        <div class="space-y-4">
+            <a href="{% url 'perfil' %}" 
+               class="block w-full py-4 rounded-xl bg-brand-dark text-white font-bold hover:bg-gray-800 shadow-lg shadow-gray-900/20 transition-all hover:-translate-y-0.5">
+                Ir para o Perfil agora
+            </a>
+            
+            <p class="text-xs text-gray-400">
+                Redirecionando automaticamente em <span id="countdown">3</span> segundos...
+            </p>
         </div>
     </div>
 
+    <footer class="mt-12 text-gray-400 text-sm">
+        &copy; 2026 Valorize Imóveis
+    </footer>
+
     <script>
+        // Inicia a animação da barra de progresso
+        window.onload = () => {
+            document.getElementById('progress-bar').style.width = '100%';
+            
+            let seconds = 3;
+            const countdownEl = document.getElementById('countdown');
+            
+            const timer = setInterval(() => {
+                seconds--;
+                countdownEl.textContent = seconds;
+                if (seconds <= 0) clearInterval(timer);
+            }, 1000);
+        };
+
         // Redireciona para o perfil automaticamente após 3 segundos
         setTimeout(() => {
             window.location.href = "{% url 'perfil' %}";
         }, 3000);
     </script>
+    
     <script src="{% static 'js/session.js' %}"></script>
 </body>
 </html>

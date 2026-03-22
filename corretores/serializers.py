@@ -68,11 +68,13 @@ class RegistroCorretorSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
 
     nome = serializers.CharField(source='corretor.nome', required=False)
-
+    creci = serializers.CharField(source='corretor.creci', required=False, allow_blank=True)
+    telefone = serializers.CharField(source='corretor.telefone', required=False, allow_blank=True)
+    cpf_cnpj = serializers.CharField(source='corretor.cpf_cnpj', required=False, allow_blank=True)
+    plano = serializers.CharField(source='corretor.plano', required=False, allow_blank=True)
+    email = serializers.EmailField(required=False)
     foto = serializers.SerializerMethodField()
-
     location = serializers.SerializerMethodField()
-
     anuncios = serializers.SerializerMethodField()
 
     class Meta:
@@ -81,6 +83,11 @@ class UserSerializer(serializers.ModelSerializer):
             'id',
             'username',
             'nome',
+            'creci',
+            'telefone',
+            'cpf_cnpj',
+            'plano',
+            'email',
             'foto',
             'location',
             'anuncios'
@@ -117,18 +124,35 @@ class UserSerializer(serializers.ModelSerializer):
         ]
 
     def update(self, instance, validated_data):
-
         request = self.context.get('request')
         corretor = instance.corretor
 
+        # Atualiza campos do corretor
         nome = request.data.get('nome')
         if nome:
             corretor.nome = nome
-
+        creci = request.data.get('creci')
+        if creci is not None:
+            corretor.creci = creci
+        telefone = request.data.get('telefone')
+        if telefone is not None:
+            corretor.telefone = telefone
+        cpf_cnpj = request.data.get('cpf_cnpj')
+        if cpf_cnpj is not None:
+            corretor.cpf_cnpj = cpf_cnpj
+        plano = request.data.get('plano')
+        if plano is not None:
+            corretor.plano = plano
         if request.FILES.get('foto'):
             corretor.foto = request.FILES['foto']
-
         corretor.save()
+
+        # Atualiza email do usuário
+        email = request.data.get('email')
+        if email:
+            instance.email = email
+            instance.username = email
+            instance.save()
 
         return instance
 
@@ -139,13 +163,13 @@ class AnuncioSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Anuncio
-
         fields = [
             'id',
             'titulo',
             'descricao',
             'preco',
             'cidade',
+            'uf',
             'bairro',
             'quartos',
             'banheiros',

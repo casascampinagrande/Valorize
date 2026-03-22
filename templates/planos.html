@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Escolha seu Plano - Valorize</title>
+    {% load static %}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            orange: '#f97316', // orange-500
+                            dark: '#111827',   // gray-900
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-800 antialiased font-sans min-h-screen flex flex-col">
+
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="{% url 'home' %}" class="flex items-center gap-2">
+                <img src="{% static 'img/logo.png' %}" alt="Valorize" class="h-8 w-auto">
+                <span class="text-xl font-bold text-brand-dark tracking-tight">Valorize</span>
+            </a>
+            <nav class="hidden md:flex gap-6 font-medium text-gray-600">
+                <a href="{% url 'home' %}" class="hover:text-brand-orange transition-colors">Início</a>
+                <a href="{% url 'perfil' %}" class="hover:text-brand-orange transition-colors">Meu Perfil</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow flex flex-col items-center justify-center py-16 px-6">
+        
+        <div class="text-center mb-16 max-w-2xl">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">
+                Impulsione seu <span class="text-brand-orange">negócio</span>
+            </h1>
+            <p class="text-xl text-gray-600 font-light">
+                Selecione o plano ideal para dar a visibilidade que seus imóveis merecem e fechar negócios mais rápido.
+            </p>
+        </div>
+
+        <div class="max-w-7xl w-full grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+            
+            <div class="bg-white rounded-3xl shadow-lg border border-gray-100 p-10 flex flex-col transition-all hover:shadow-2xl hover:-translate-y-1">
+                <div class="mb-8">
+                    <h2 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-1">Entrada</h2>
+                    <p class="text-3xl font-bold text-gray-900">Básico</p>
+                </div>
+                <div class="mb-8">
+                    <span class="text-5xl font-extrabold text-gray-900">Grátis</span>
+                    <p class="text-gray-500 mt-1">Para começar</p>
+                </div>
+                
+                <ul class="space-y-4 text-gray-700 mb-12 flex-grow">
+                    <li class="flex items-center gap-3">
+                        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        5 anúncios simultâneos
+                    </li>
+                    <li class="flex items-center gap-3 text-gray-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        Destaque nos resultados
+                    </li>
+                </ul>
+                
+                <a href="{% url 'confirmar_plano' plan_id='basico' %}" class="block w-full text-center py-4 rounded-xl border-2 border-gray-200 font-bold text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-all">
+                    Começar grátis
+                </a>
+            </div>
+
+            <div class="bg-brand-dark rounded-3xl shadow-2xl border-4 border-brand-orange p-10 flex flex-col transition-all hover:-translate-y-2 relative md:scale-105">
+                <div class="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-brand-orange text-white text-xs font-bold uppercase tracking-widest shadow-lg shadow-orange-500/30">
+                    Mais Popular
+                </div>
+                
+                <div class="mb-8">
+                    <h2 class="text-sm font-bold text-orange-200 uppercase tracking-widest mb-1">Crescimento</h2>
+                    <p class="text-3xl font-bold text-white">Pro</p>
+                </div>
+                <div class="mb-8">
+                    <span class="text-gray-400 text-2xl font-medium">R$</span>
+                    <span class="text-5xl font-extrabold text-white">5,99</span>
+                    <span class="text-gray-400">/ mês</span>
+                </div>
+                
+                <ul class="space-y-4 text-gray-200 mb-12 flex-grow">
+                    <li class="flex items-center gap-3">
+                        <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        + 5 anúncios simultâneos
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        Selo de Verificação Pro
+                    </li>
+                    <li class="flex items-center gap-3 text-gray-500">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        Topo das buscas
+                    </li>
+                </ul>
+                
+                <a href="{% url 'confirmar_plano' plan_id='pro' %}" class="block w-full text-center py-4 rounded-xl bg-brand-orange text-white font-bold hover:bg-orange-600 shadow-lg shadow-orange-500/20 transition-all hover:-translate-y-0.5">
+                    Assinar Pro
+                </a>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-lg border border-gray-100 p-10 flex flex-col transition-all hover:shadow-2xl hover:-translate-y-1">
+                <div class="mb-8">
+                    <h2 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-1">Máximo</h2>
+                    <p class="text-3xl font-bold text-gray-900">Premium</p>
+                </div>
+                <div class="mb-8">
+                    <span class="text-gray-400 text-2xl font-medium">R$</span>
+                    <span class="text-5xl font-extrabold text-gray-900">7,99</span>
+                    <span class="text-gray-400">/ mês</span>
+                </div>
+                
+                <ul class="space-y-4 text-gray-700 mb-12 flex-grow">
+                    <li class="flex items-center gap-3">
+                        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        15 anúncios simultâneos
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        Suporte VIP 24h
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        Topo absoluto nas buscas
+                    </li>
+                </ul>
+                
+                <a href="{% url 'confirmar_plano' plan_id='premium' %}" class="block w-full text-center py-4 rounded-xl border-2 border-brand-dark text-brand-dark font-bold hover:bg-gray-100 transition-all">
+                    Obter Premium
+                </a>
+            </div>
+
+        </div>
+
+        <div class="text-center mt-16 text-gray-500 text-sm">
+            Precisa de um plano customizado para sua imobiliária? <a href="{% url 'suporte' %}" class="font-bold text-brand-orange hover:underline">Fale com o suporte.</a>
+        </div>
+
+    </main>
+
+    <footer class="py-8 text-center text-gray-400 text-sm">
+        &copy; 2026 Valorize Imóveis. Todos os direitos reservados.
+    </footer>
+
+</body>
+</html>

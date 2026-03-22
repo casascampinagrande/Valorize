@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.urls import path
+from . import views
 
 urlpatterns = [
     # Páginas Web (HTML)
@@ -36,10 +38,12 @@ urlpatterns = [
     path('password-reset-confirm/', views.ConfirmarResetSenhaView.as_view(), name='password_reset_confirm'),
 
     # API
-  
+    path('api/sugestoes-cidade/', views.sugestoes_cidade, name='sugestoes_cidade'),
     path('api/registrar/', views.RegistroView.as_view(), name='api_registrar'),
     path('api/login/', views.LoginView.as_view(), name='api_login'),
     path('api/anuncios/', views.AnuncioListView.as_view(), name='api_anuncios'),
     path('api/anuncios/<int:pk>/', views.AnuncioDetailView.as_view(), name='api_anuncio_detail'),
     path('api/anuncios/<int:pk>/editar/', views.EditarAnuncioView.as_view(), name='api_editar_anuncio'),
+    path('planos/', views.planos, name='planos'),
+    path('confirmar-plano/<str:plan_id>/', views.confirmar_plano, name='confirmar_plano'),
 ]
